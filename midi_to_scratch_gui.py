@@ -41,8 +41,18 @@ def gm_to_scratch_instrument(gm_program):
 
 def round_to_musical_beat(beat_value):
     """Round a beat value to common musical note durations"""
-    if beat_value < 0.06:
-        return 0.0625  # 64th note
+    if beat_value < 0.027:
+        return 0.03125  # 128th note
+    elif beat_value < 0.035:
+        return 0.04     # triplet 64th note
+    elif beat_value < 0.045:
+        return 0.05     # dotted 64th note
+    elif beat_value < 0.0615:
+        return 0.0625   # 64th note
+    elif beat_value < 0.0825:
+        return 0.0833  # triplet 32th note
+    elif beat_value < 0.05:
+        return 0.1      # dotted 32th note
     elif beat_value < 0.1:
         return 0.125   # 32th note
     elif beat_value < 0.15:
@@ -59,9 +69,9 @@ def round_to_musical_beat(beat_value):
         return 1      # quarter note
     elif beat_value < 1.3:
         return 1.5    # dotted quarter
-    elif beat_value < 2.3:
+    elif beat_value < 2.5:
         return 2      # half note
-    elif beat_value < 3.3:
+    elif beat_value < 3.5:
         return 3      # dotted half
     elif beat_value < 4.5:
         return 4      # whole note
@@ -147,7 +157,7 @@ def midi_to_scratch(midi_file, output_file, progress_callback=None):
     
     # Get initial tempo
     initial_tempo = tempo_changes.get(0, 500000)
-    bpm = round(60000000 / initial_tempo)
+    bpm = (60000000 / initial_tempo)
     output_lines.append(f"BPM: {bpm}")
     
     note_end_times = {}
@@ -198,7 +208,7 @@ def midi_to_scratch(midi_file, output_file, progress_callback=None):
     for time_point, event_type, data in grouped_events:
         if event_type == 'tempo':
             new_tempo = data['tempo']
-            new_bpm = round(60000000 / new_tempo)
+            new_bpm = (60000000 / new_tempo)
             if new_bpm != current_bpm:
                 output_lines.append(f"BPM: {new_bpm}")
                 current_bpm = new_bpm
@@ -215,7 +225,7 @@ def midi_to_scratch(midi_file, output_file, progress_callback=None):
             if time_point > previous_time:
                 rest_ticks = time_point - previous_time
                 rest_beats = rest_ticks / ticks_per_beat
-                if rest_beats >= 0.05:
+                if rest_beats >= 0.03125:
                     rest_beats = round_to_musical_beat(rest_beats)
                     output_lines.append(f"Rest: {rest_beats}")
             
